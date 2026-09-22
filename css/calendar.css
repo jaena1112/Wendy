@@ -19,14 +19,14 @@
 }
 
 .calendar-empty-state {
-  margin: 20px;
-  padding: 60px 20px;
+  margin: 12px 20px 0;
+  padding: 10px 14px;
   text-align: center;
-  color: #8a8a8e;
-  font-size: 13px;
-  line-height: 1.6;
-  border: 1px dashed #dce0e5;
-  border-radius: 12px;
+  color: #6f7c8e;
+  font-size: 12px;
+  line-height: 1.5;
+  background: #f6f7f9;
+  border-radius: 10px;
 }
 
 .secondary-btn:disabled {
@@ -60,7 +60,8 @@
 
 .group-color-row {
   display: flex;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 12px;
   padding: 4px 0;
 }
 
@@ -71,11 +72,44 @@
   border: 2px solid transparent;
   cursor: pointer;
   padding: 0;
+  flex-shrink: 0;
 }
 
 .group-color-dot.selected {
   border-color: #14181f;
   box-shadow: 0 0 0 2px #fff inset;
+}
+
+.group-color-dot.taken {
+  cursor: not-allowed;
+  opacity: 0.25;
+  position: relative;
+}
+
+.group-color-dot.taken::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: repeating-linear-gradient(
+    45deg,
+    rgba(20, 24, 31, 0.5) 0,
+    rgba(20, 24, 31, 0.5) 1.5px,
+    transparent 1.5px,
+    transparent 5px
+  );
+}
+
+.color-taken-hint {
+  font-size: 12px;
+  color: #ff6767;
+  margin-top: 6px;
+}
+
+.range-hint {
+  font-size: 12px;
+  color: #3348ff;
+  margin: -6px 0 12px 2px;
 }
 
 .menu-group-item {
@@ -359,6 +393,10 @@
   background: #fafbfc;
 }
 
+.calendar-cell.selecting {
+  background: #e8ebff;
+}
+
 .calendar-cell.outside {
   background: #fcfcfd;
 }
@@ -412,8 +450,15 @@
 }
 
 .color-red { background: #ff6767; }
+.color-orange { background: #ffa056; }
 .color-yellow { background: #ffd561; }
 .color-green { background: #7eb479; }
+.color-teal { background: #4fb8a6; }
+.color-blue { background: #5b8eff; }
+.color-purple { background: #8b7cf6; }
+.color-pink { background: #ff8fc6; }
+.color-brown { background: #b98a5e; }
+.color-gray { background: #9aa0a8; }
 
 .color-display {
   display: flex;
@@ -422,6 +467,36 @@
   padding: 4px 0;
   font-size: 13px;
   color: #1c1c1e;
+}
+
+.calendar-target-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0 4px;
+}
+
+.calendar-target-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 4px;
+  font-size: 13px;
+  color: #1c1c1e;
+  cursor: pointer;
+}
+
+.calendar-target-item input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #3348ff;
+}
+
+.menu-item.active {
+  background: #f0f2ff;
+  color: #3348ff;
+  font-weight: 700;
 }
 
 .event-detail-list {

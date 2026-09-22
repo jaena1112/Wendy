@@ -74,6 +74,19 @@ export async function getMyGroups() {
 }
 
 /**
+ * 그룹에서 이미 사용 중인 색상 목록을 가져옵니다 (색상 선택 시 중복 방지용).
+ * get_group_used_colors RPC는 SECURITY DEFINER라 RLS를 우회하므로,
+ * 아직 멤버가 아닌 사용자도 참여 전에 미리 확인할 수 있습니다.
+ */
+export async function getGroupUsedColors(groupId) {
+  const { data, error } = await supabase.rpc("get_group_used_colors", {
+    target_group_id: groupId,
+  });
+  if (error) throw error;
+  return data || [];
+}
+
+/**
  * 그룹에서 나갑니다 (내 멤버 행만 삭제, 그룹 자체와 다른 멤버는 유지됨).
  */
 export async function leaveGroup(memberId) {
@@ -116,6 +129,21 @@ export async function joinGroupMember({
         office_code: officeCode,
       },
     ])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * 특정 그룹에서 내가 사용하는 닉네임을 수정합니다.
+ */
+export async function updateMemberName(memberId, name) {
+  const { data, error } = await supabase
+    .from("members")
+    .update({ name })
+    .eq("id", memberId)
     .select()
     .single();
 
@@ -226,6 +254,61 @@ export async function updateEvent(eventId, { title, date, time, memo }) {
  */
 export async function deleteEvent(eventId) {
   const { error } = await supabase.from("events").delete().eq("id", eventId);
+
+  if (error) throw error;
+  return true;
+}
+
+// 4. PERSONAL EVENTS (그룹에 속하지 않는 나만의 개인 일정 CRUD)
+
+/**
+ * 내 개인 일정 전체를 가져옵니다 (그룹과 무관, 홈 화면 전용).
+ */
+export async function getPersonalEvents(userId) {
+  const { data, error } = await supabase
+    .from("personal_events")
+    .select("*")
+    .eq("user_id", userId)
+    .order("date", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * 신규 개인 일정을 등록합니다.
+ */
+export async function createPersonalEvent({ userId, title, date, time = null, memo = null }) {
+  const { data, error } = await supabase
+    .from("personal_events")
+    .insert([{ user_id: userId, title, date, time, memo }])
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * 기존 개인 일정을 수정합니다.
+ */
+export async function updatePersonalEvent(eventId, { title, date, time, memo }) {
+  const { data, error } = await supabase
+    .from("personal_events")
+    .update({ title, date, time, memo })
+    .eq("id", eventId)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+/**
+ * 개인 일정을 삭제합니다.
+ */
+export async function deletePersonalEvent(eventId) {
+  const { error } = await supabase.from("personal_events").delete().eq("id", eventId);
 
   if (error) throw error;
   return true;
