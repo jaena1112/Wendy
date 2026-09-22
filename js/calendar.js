@@ -1,4 +1,6 @@
 //캘린더 그리드 및 일정 색상 칩 스타일
+import { getHolidayName } from "./holidays.js";
+
 const WEEKDAY_LABELS = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
 const COLOR_CLASS = {
@@ -23,14 +25,16 @@ function toDateKey(year, month, day) {
  * @param {number} year
  * @param {number} month - 0부터 시작 (0 = 1월)
  * @param {Array} events - [{ date: 'YYYY-MM-DD', time, title, color }]
- * @param {Function} onDayClick - 날짜 클릭 시 실행할 콜백(dateKey)
+ * @param {Function} [onDayClick] - 날짜 클릭 시 실행할 콜백(dateKey)
  */
 export function renderCalendar(gridEl, year, month, events, onDayClick) {
   gridEl.innerHTML = "";
 
-  WEEKDAY_LABELS.forEach((label) => {
+  WEEKDAY_LABELS.forEach((label, index) => {
     const weekdayEl = document.createElement("div");
     weekdayEl.className = "weekday";
+    if (index === 0) weekdayEl.classList.add("sunday");
+    if (index === 6) weekdayEl.classList.add("saturday");
     weekdayEl.textContent = label;
     gridEl.appendChild(weekdayEl);
   });
@@ -50,6 +54,7 @@ export function renderCalendar(gridEl, year, month, events, onDayClick) {
 
   for (let i = 0; i < totalCells; i++) {
     const dayOffset = i - startOffset;
+    const weekdayIndex = i % 7; // 0 = 일요일 ... 6 = 토요일
     let cellYear = year;
     let cellMonth = month;
     let dayNumber;
@@ -85,6 +90,19 @@ export function renderCalendar(gridEl, year, month, events, onDayClick) {
     const dayNumberEl = document.createElement("div");
     dayNumberEl.className = "day-number";
     dayNumberEl.textContent = dayNumber;
+
+    if (!isOutside) {
+      const holidayName = getHolidayName(dateKey);
+      if (holidayName) {
+        dayNumberEl.classList.add("holiday");
+        dayNumberEl.title = holidayName;
+      } else if (weekdayIndex === 0) {
+        dayNumberEl.classList.add("sunday");
+      } else if (weekdayIndex === 6) {
+        dayNumberEl.classList.add("saturday");
+      }
+    }
+
     cellEl.appendChild(dayNumberEl);
 
     const dayEvents = eventsByDate[dateKey] || [];
